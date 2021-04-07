@@ -2,7 +2,7 @@
 
 namespace Navari\InstagramScrapper;
 
-use GuzzleHttp\Client;
+use Navari\InstagramScrapper\Exception\InstagramException;
 use Navari\InstagramScrapper\Http\Request;
 use Navari\InstagramScrapper\Models\Account;
 use Psr\Http\Client\ClientInterface;
@@ -18,11 +18,11 @@ class Instagram
 
     /**
      * Instagram constructor.
-     *
+     * @param ClientInterface $client
      */
-    public function __construct()
+    public function __construct(ClientInterface $client)
     {
-        Request::setHttpClient(new Client());
+        Request::setHttpClient($client);
     }
     /**
      * @return string
@@ -42,7 +42,7 @@ class Instagram
     {
         $headers = [
             'cookie' => '$cookies',
-            'referer' => 'https://www.instagram.com' . '/',
+            'referer' => 'https://www.instagram.com/',
             'x-csrftoken' => '',
             'x-requested-with' => 'XMLHttpRequest',
 
@@ -61,6 +61,15 @@ class Instagram
         $url = "https://www.instagram.com/{$username}/channel/?__a=1&page=3";
         $response = Request::get($url, $this->generateHeaders());
         $body = $response->body;
+
+        if(!is_array($body))
+            throw new InstagramException('Can not connect instagram');
+
+        if(!isset($body['graphql']))
+            throw new InstagramException('Can not connect instagram');
+
+        if(!isset($body['graphql']['user']))
+            throw new InstagramException('Can not connect instagram');
 
         return Account::create($body['graphql']['user']);
     }

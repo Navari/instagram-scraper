@@ -16,29 +16,23 @@ class Request
     /**
      * @var ClientInterface
      */
-    private static ClientInterface $client;
-    private static array $proxies = [
-        'socks5://obrdlbat-rotate:970jgitjcb9t@p.webshare.io:80/',
-        'socks5://uwtpptej-rotate:gzz8s03me3jp@p.webshare.io:80/',
-    ];
+    private static $client;
 
     /**
      * @param ClientInterface $client
      */
     public static function setHttpClient(ClientInterface $client)
     {
-        self::$client = new Client([
-            'proxy' => self::$proxies[0]
-        ]);
+        self::$client = $client;
     }
 
     /**
      * Send a cURL request
      * @param string $method HTTP method to use
      * @param string|Uri $uri URL to send the request to
-     * @param mixed $body request body
      * @param array $headers additional headers to send
      *
+     * @param mixed $body request body
      * @return Response
      * @throws ClientExceptionInterface
      */
